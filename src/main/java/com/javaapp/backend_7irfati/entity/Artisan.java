@@ -12,7 +12,8 @@ import java.util.Set;
 @Table(name = "artisans")
 @Getter
 @Setter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Artisan {
 
@@ -49,4 +50,9 @@ public class Artisan {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    // This is where we store all verification attempts
+    @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VerificationRequest> verificationRequests;
+
 }

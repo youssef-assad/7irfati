@@ -1,6 +1,6 @@
 package com.javaapp.backend_7irfati.entity;
 
-import ch.qos.logback.core.net.server.Client;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

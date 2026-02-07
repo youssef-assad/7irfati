@@ -1,15 +1,23 @@
 package com.javaapp.backend_7irfati.controller.auth;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import com.javaapp.backend_7irfati.Dtos.auth.RegisterRequest;
+import com.javaapp.backend_7irfati.Dtos.user.UserResponse;
+import com.javaapp.backend_7irfati.service.AuthService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    @GetMapping("/register")
-    public String register(){
-        return  "Hello Register :";
+    private final AuthService authService;
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+        UserResponse userResponse = authService.registerUser(request);
+        return ResponseEntity.ok(userResponse);
     }
     @GetMapping("/login")
 

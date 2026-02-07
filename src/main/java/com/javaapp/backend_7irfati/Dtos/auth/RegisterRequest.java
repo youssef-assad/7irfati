@@ -1,5 +1,6 @@
 package com.javaapp.backend_7irfati.Dtos.auth;
 
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 

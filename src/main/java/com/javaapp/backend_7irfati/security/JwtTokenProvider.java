@@ -1,5 +1,6 @@
 package com.javaapp.backend_7irfati.security;
 
+import com.javaapp.backend_7irfati.entity.User;
 import com.javaapp.backend_7irfati.exception.InvalidToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -36,6 +37,23 @@ public class JwtTokenProvider {
                 .compact()
                 ;
     }
+    // Generate token pour register
+    public String generateTokenFromUser(User user) {
+        return generateTokenFromUsername(user.getEmail());
+    }
+
+    private String generateTokenFromUsername(String username) {
+        Date currentDate = new Date();
+        Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(currentDate)
+                .setExpiration(expireDate)
+                .signWith(key())
+                .compact();
+    }
+
 
     // hash code
     private Key key() {

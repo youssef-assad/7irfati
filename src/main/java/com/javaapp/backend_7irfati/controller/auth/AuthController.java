@@ -1,7 +1,9 @@
 package com.javaapp.backend_7irfati.controller.auth;
 
 
+import com.javaapp.backend_7irfati.Dtos.auth.LoginRequest;
 import com.javaapp.backend_7irfati.Dtos.auth.RegisterRequest;
+import com.javaapp.backend_7irfati.Dtos.auth.RegisterResponse;
 import com.javaapp.backend_7irfati.Dtos.user.UserResponse;
 import com.javaapp.backend_7irfati.service.AuthService;
 import jakarta.validation.Valid;
@@ -15,13 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
-        UserResponse userResponse = authService.registerUser(request);
-        return ResponseEntity.ok(userResponse);
+    public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+        RegisterResponse registerResponse = authService.registerUser(request);
+        return ResponseEntity.ok(registerResponse);
     }
-    @GetMapping("/login")
+    @PostMapping("/login")
 
-    public String login(){
-        return "Login Page";
+    public RegisterResponse login(
+            @RequestBody LoginRequest request
+            ){
+        return authService.login(request);
     }
 }

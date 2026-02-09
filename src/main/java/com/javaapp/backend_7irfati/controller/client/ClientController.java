@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/api/client")
 public class ClientController {
-   //private final UserService userService;
+   private final UserService userService;
     @GetMapping
     public String hello(){
         return "Hello Client";
     }
-//    @GetMapping("/me")
-//    private UserResponse getMyProfile(
-//            @AuthenticationPrincipal User user
-//            ){
-//        return userService.getMyProfile(user);
-//    }
+    @GetMapping("/me")
+    private UserResponse getMyProfile(
+            @AuthenticationPrincipal User user
+            ){
+        return userService.getMyProfile(user);
+    }
 }

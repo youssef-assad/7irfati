@@ -1,9 +1,7 @@
 package com.javaapp.backend_7irfati.controller.auth;
 
 
-import com.javaapp.backend_7irfati.Dtos.auth.LoginRequest;
-import com.javaapp.backend_7irfati.Dtos.auth.RegisterRequest;
-import com.javaapp.backend_7irfati.Dtos.auth.RegisterResponse;
+import com.javaapp.backend_7irfati.Dtos.auth.*;
 import com.javaapp.backend_7irfati.Dtos.user.UserResponse;
 import com.javaapp.backend_7irfati.service.AuthService;
 import jakarta.validation.Valid;
@@ -17,15 +15,22 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
-        RegisterResponse registerResponse = authService.registerUser(request);
+    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse registerResponse = authService.registerUser(request);
         return ResponseEntity.ok(registerResponse);
     }
     @PostMapping("/login")
 
-    public RegisterResponse login(
+    public AuthResponse login(
             @RequestBody LoginRequest request
             ){
         return authService.login(request);
     }
+    @PostMapping("/refresh-token")
+    public AuthResponse refreshToken(
+            @RequestBody RefreshTokenRequest request
+    ) {
+        return authService.refreshToken(request.getRefreshToken());
+    }
+
 }

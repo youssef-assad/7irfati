@@ -21,7 +21,7 @@ import java.util.Date;
 public class JwtTokenProvider {
     @Value("${app.jwt-secret}")
     private String jwtSecret;
-    @Value("${app.jwt-expiration}")
+    @Value("${app.jwt-access-token-expiration-ms}")
     private Long jwtExpirationDate;
 
     // generate token

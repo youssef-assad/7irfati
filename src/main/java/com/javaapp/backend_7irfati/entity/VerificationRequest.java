@@ -33,4 +33,5 @@ public class VerificationRequest {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+    private String rejectionReason;
 }

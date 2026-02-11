@@ -1,5 +1,6 @@
 package com.javaapp.backend_7irfati.Dtos.user;
 
+import com.javaapp.backend_7irfati.entity.Language;
 import lombok.*;
 
 @NoArgsConstructor
@@ -12,5 +13,5 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String phone;
-    private String language;
+    private Language language;
 }

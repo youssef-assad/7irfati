@@ -3,6 +3,7 @@ package com.javaapp.backend_7irfati.service.impl;
 import com.javaapp.backend_7irfati.entity.RefreshToken;
 import com.javaapp.backend_7irfati.entity.User;
 import com.javaapp.backend_7irfati.repository.RefreshTokenRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,12 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
 
     }
+    @Transactional
+    public RefreshToken createOrReplace(User user) {
+        refreshTokenRepository.deleteByUser(user);
+        return createRefreshToken(user);
+    }
+
     public RefreshToken verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().isBefore(LocalDateTime.now())){
             refreshTokenRepository.delete(token);
@@ -37,5 +44,27 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
+    public RefreshToken rotateRefreshToken(RefreshToken oldToken) {
+        // 1️⃣ Vérifier expiration et revoked
+        if (oldToken.isRevoked() || oldToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Refresh token invalid");
+        }
 
+        // 2️⃣ Révoquer l’ancien token
+        oldToken.setRevoked(true);
+        refreshTokenRepository.save(oldToken);
+
+        // 3️⃣ Créer un nouveau token pour le même user
+        RefreshToken newToken = RefreshToken.builder()
+                .user(oldToken.getUser())
+                .token(UUID.randomUUID().toString())
+                .expiryDate(LocalDateTime.now().plusDays(7))
+                .revoked(false)
+                .build();
+
+        return refreshTokenRepository.save(newToken);
+    }
+
+    public void deleteByUser(User user) {
+    }
 }

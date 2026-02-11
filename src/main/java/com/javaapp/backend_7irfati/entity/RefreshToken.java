@@ -23,4 +23,7 @@ public class RefreshToken {
     private User user;
     @Column(nullable = false)
     private LocalDateTime expiryDate;
+
+    @Column(nullable = false)
+    private boolean revoked = false;
 }

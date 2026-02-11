@@ -13,11 +13,15 @@ import com.javaapp.backend_7irfati.security.JwtTokenProvider;
 import com.javaapp.backend_7irfati.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.Collections;
@@ -73,21 +77,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        Authentication authentication = null;
-        authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
-        );
-        User user = (User) authentication.getPrincipal();
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        String accessToken = jwtTokenProvider.generateToken(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-        assert user != null;
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
-                .build();
+            User user = (User) authentication.getPrincipal();
+
+            String accessToken = jwtTokenProvider.generateToken(authentication);
+            RefreshToken refreshToken = refreshTokenService.createOrReplace(user);
+
+            return AuthResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken.getToken())
+                    .build();
+        } catch (UsernameNotFoundException | BadCredentialsException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
 
     }
+
+
 
     public AuthResponse refreshToken(String refreshToken) {
 

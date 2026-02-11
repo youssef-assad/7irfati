@@ -11,8 +11,19 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 @Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
+
     @Override
-    public void commence(@NonNull HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage());
+    public void commence(@NonNull HttpServletRequest request,
+                         @NonNull HttpServletResponse response,
+                         @NonNull AuthenticationException authException) throws IOException {
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("""
+        {
+            "error": "Invalid email or password"
+        }
+        """);
+
     }
 }

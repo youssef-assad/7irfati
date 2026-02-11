@@ -39,6 +39,9 @@ public class Artisan {
 
     @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArtisanPhoto> photos;
+    // Projects
+    @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ArtisanProject> projects;
 
     @ManyToMany
     @JoinTable(

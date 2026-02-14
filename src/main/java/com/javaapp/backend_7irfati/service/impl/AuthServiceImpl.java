@@ -13,7 +13,10 @@ import com.javaapp.backend_7irfati.security.JwtTokenProvider;
 import com.javaapp.backend_7irfati.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.Duration;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 @Setter
@@ -62,10 +67,10 @@ public class AuthServiceImpl implements AuthService {
                 .roles(Set.of(defaultRole))
                 .build();
 
-        // 4 Sauvegarder en DB
+
         userRepository.save(user);
 
-        // 5️ Générer le JWT (LOGIN DIRECT 🔥)
+
         String accessToken = jwtTokenProvider.generateTokenFromUser(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
@@ -76,25 +81,37 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public ResponseEntity<?> login(LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
             User user = (User) authentication.getPrincipal();
-
             String accessToken = jwtTokenProvider.generateToken(authentication);
             RefreshToken refreshToken = refreshTokenService.createOrReplace(user);
 
-            return AuthResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken.getToken())
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/api/auth/refresh-token")
+                    .maxAge(Duration.ofDays(7))
+                    .sameSite("Strict")
                     .build();
-        } catch (UsernameNotFoundException | BadCredentialsException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
-        }
 
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(new AuthResponse(accessToken, null));
+
+        } catch (BadCredentialsException | UsernameNotFoundException ex) {
+            // ✅ Return directly here — never reaches JwtAuthEntryPoint
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "error", "Unauthorized",
+                            "message", "Email ou mot de passe incorrect"
+                    ));
+        }
     }
 
 

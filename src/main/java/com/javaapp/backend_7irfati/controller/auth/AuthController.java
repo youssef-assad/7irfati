@@ -10,8 +10,12 @@ import com.javaapp.backend_7irfati.service.AuthService;
 import com.javaapp.backend_7irfati.service.impl.RefreshTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,20 +32,35 @@ public class AuthController {
     }
     @PostMapping("/login")
 
-    public AuthResponse login(@RequestBody LoginRequest request){
+    public ResponseEntity<?>login(@RequestBody LoginRequest request){
         return authService.login(request);
     }
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
-        RefreshToken oldToken = refreshTokenService.findByToken(request.getRefreshToken())
+    public ResponseEntity<AuthResponse> refreshToken(
+            @CookieValue("refreshToken") String refreshTokenValue
+    ) {
+
+        RefreshToken oldToken = refreshTokenService.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"));
 
         RefreshToken newToken = refreshTokenService.rotateRefreshToken(oldToken);
 
-        String newAccessToken = jwtTokenProvider.generateTokenFromUser(newToken.getUser());
+        String newAccessToken =
+                jwtTokenProvider.generateTokenFromUser(newToken.getUser());
 
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, newToken.getToken()));
+        ResponseCookie newRefreshCookie = ResponseCookie.from("refreshToken", newToken.getToken())
+                .httpOnly(true)
+                .secure(false)
+                .path("/api/auth/refresh-token")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, newRefreshCookie.toString())
+                .body(new AuthResponse(newAccessToken, null));
     }
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
         RefreshToken token = refreshTokenService.findByToken(request.getRefreshToken())

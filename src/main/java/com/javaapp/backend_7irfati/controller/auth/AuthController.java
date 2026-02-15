@@ -8,6 +8,7 @@ import com.javaapp.backend_7irfati.repository.RefreshTokenRepository;
 import com.javaapp.backend_7irfati.security.JwtTokenProvider;
 import com.javaapp.backend_7irfati.service.AuthService;
 import com.javaapp.backend_7irfati.service.impl.RefreshTokenService;
+import com.javaapp.backend_7irfati.utilis.LookupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final LookupService lookupService;
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
         AuthResponse registerResponse = authService.registerUser(request);
@@ -70,5 +72,10 @@ public class AuthController {
         refreshTokenRepository.save(token);
 
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/register_data")
+    public ResponseEntity<?> getRegisterData() {
+        return ResponseEntity.ok(lookupService.getRegisterData());
     }
 }

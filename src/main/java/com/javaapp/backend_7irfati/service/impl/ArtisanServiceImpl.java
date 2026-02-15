@@ -120,4 +120,7 @@ public class ArtisanServiceImpl implements ArtisanService {
         Artisan savedArtisan = artisanRepository.save(artisan);
         return mapToDto(savedArtisan);
     }
+
+
+
 }

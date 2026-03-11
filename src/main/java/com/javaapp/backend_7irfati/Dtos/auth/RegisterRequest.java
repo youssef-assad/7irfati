@@ -26,6 +26,5 @@ public class RegisterRequest {
     @Pattern(regexp = "^\\+?\\d{10,15}$", message = "Phone must be valid")
     private String phone;
 
-    @NotBlank(message = "Language is required")
-    private String language; // Map to Language enum later
+
 }

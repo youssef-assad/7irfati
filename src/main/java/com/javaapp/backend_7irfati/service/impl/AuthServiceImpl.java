@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Override
-    public AuthResponse registerUser(RegisterRequest request) {
+    public AuthResponse registerUser(RegisterRequest request, String language) {
 
         // 1️ Vérifier si l’email existe déjà
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -55,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
         Role defaultRole = roleRepository.findByName(RoleName.CLIENT)
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
+        Language lang = Language.valueOf(language.toUpperCase());
         // 3️ Créer l’utilisateur
         User user = User.builder()
                 .email(request.getEmail())
@@ -62,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone())
-                .language(Language.valueOf(request.getLanguage().toUpperCase()))
+                .language(lang)
                 .enabled(true)
                 .roles(Set.of(defaultRole))
                 .build();

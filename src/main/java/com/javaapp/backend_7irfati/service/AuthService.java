@@ -8,7 +8,7 @@ import com.javaapp.backend_7irfati.Dtos.user.UserResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
-    AuthResponse registerUser(RegisterRequest request);
+    AuthResponse registerUser(RegisterRequest request,String language);
     ResponseEntity<?> login(LoginRequest request);
     AuthResponse refreshToken(String refreshToken);
 }
